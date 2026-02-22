@@ -7,7 +7,7 @@ import (
 	"fullcycle-auction_go/internal/entity/bid_entity"
 	"fullcycle-auction_go/internal/infra/database/auction"
 	"fullcycle-auction_go/internal/internal_error"
-	"os"
+	"fullcycle-auction_go/internal/utils"
 	"sync"
 	"time"
 
@@ -34,7 +34,7 @@ type BidRepository struct {
 
 func NewBidRepository(database *mongo.Database, auctionRepository *auction.AuctionRepository) *BidRepository {
 	return &BidRepository{
-		auctionInterval:       getAuctionInterval(),
+		auctionInterval:       utils.GetAuctionInterval(),
 		auctionStatusMap:      make(map[string]auction_entity.AuctionStatus),
 		auctionEndTimeMap:     make(map[string]time.Time),
 		auctionStatusMapMutex: &sync.Mutex{},
@@ -108,14 +108,4 @@ func (bd *BidRepository) CreateBid(
 	}
 	wg.Wait()
 	return nil
-}
-
-func getAuctionInterval() time.Duration {
-	auctionInterval := os.Getenv("AUCTION_INTERVAL")
-	duration, err := time.ParseDuration(auctionInterval)
-	if err != nil {
-		return time.Minute * 5
-	}
-
-	return duration
 }
